@@ -169,17 +169,27 @@ int main(int argc, char *argv[]){
             std::cout << "\rRendering " << 100.*y/(h-1) << "%" << std::flush;
 
             for (unsigned short x=0, Xi[3]={0,0, static_cast<unsigned short>(y*y*y)}; x<w; x++) {   // Loop cols
-                int i = (h - y - 1) * w + x;
-                for (int sy = 0; sy < 2; sy++)     // 2x2 subpixel rows
-                    for (int sx = 0; sx < 2; sx++) {        // 2x2 subpixel cols
+                int i = (h - y - 1) * w + x; // get pixel index in 1D vector
+
+                //for (int sy = 0; sy < 2; sy++)     // 2x2 subpixel rows
+                  //  for (int sx = 0; sx < 2; sx++)
+                    {        // 2x2 subpixel cols
+                        int sy = 0;
+                        int sx = 0;
                         r = Vec();
-                        double r1 = 2 * erand48(Xi), dx = r1 < 1 ? sqrt(r1) - 1 : 1 - sqrt(2 - r1);
-                        double r2 = 2 * erand48(Xi), dy = r2 < 1 ? sqrt(r2) - 1 : 1 - sqrt(2 - r2);
+                        double r1 = 2 * erand48(Xi);
+                        double dx = r1 < 1 ? sqrt(r1) - 1 : 1 - sqrt(2 - r1);
+                        double r2 = 2 * erand48(Xi);
+                        double dy = r2 < 1 ? sqrt(r2) - 1 : 1 - sqrt(2 - r2);
+
+                        //Vec d = cx * ()
                         Vec d = cx * (((sx + .5 + dx) / 2 + x) / w - .5) +
                                 cy * (((sy + .5 + dy) / 2 + y) / h - .5) + cam.d;
+
                         r = r + radiance(Ray(cam.o + d * 140, d.norm()), 0, Xi, spheres);
+
                         // Camera rays are pushed ^^^^^ forward to start in interior
-                        c[i] = c[i] + Vec(clamp(r.x), clamp(r.y), clamp(r.z)) * .25;
+                        c[i] = c[i] + Vec(clamp(r.x), clamp(r.y), clamp(r.z));
                     }
             }
         }
