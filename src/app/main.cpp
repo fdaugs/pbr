@@ -129,13 +129,11 @@ int main(int argc, char *argv[]){
                 double x1to1 = (2.0 * x - w) / w; // x is now in the range [-1,1]
                 double y1to1 = (2.0 * y - h) / h; // y is now in the range [-1,1]
 
-                Vec d(
-                        x1to1 * tan(fovx),
-                        y1to1 * tan(hw * fovx),
-                        cam.d.z
-                );
+                Vec d(x1to1 * tan(fovx),
+                      y1to1 * tan(hw * fovx),
+                      -1.0);
 
-                r = radiance(Ray(cam.o, d.norm()), spheres);
+                r    = radiance(Ray(cam.o, d.norm()), spheres);
                 c[i] = c[i] + Vec(clamp(r.x), clamp(r.y), clamp(r.z));
             }
         }
