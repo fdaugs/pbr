@@ -1,6 +1,12 @@
+/*******************************************************************************
+ * This implementation is based on smallpt, a Path Tracer by Kevin Beason, 2008
+ * Modified by Martin Eisemann, 2018
+ ******************************************************************************/
+
+
 #include <iostream>
 #include <vector>
-#include <cmath>   // smallpt, a Path Tracer by Kevin Beason, 2008
+#include <cmath>
 
 class Vec {        // Usage: time ./smallpt 5000 && xv image.ppm
 public:
@@ -93,7 +99,7 @@ int main(int argc, char *argv[]){
                 Sphere(1e5, Vec( 1e5+1,40.8,81.6), Vec(255,0,0)),//Left
                 Sphere(1e5, Vec(-1e5+99,40.8,81.6),Vec(0,0,255)),//Right
                 Sphere(1e5, Vec(50,40.8, 1e5),     Vec(0.75, 0.75, 0.75)),//Back
-                Sphere(1e5, Vec(50,40.8,-1e5+170), Vec()),//Front
+                //Sphere(1e5, Vec(50,40.8,-1e5+170), Vec()),//Front
                 Sphere(1e5, Vec(50, 1e5, 81.6),    Vec(0.75, 0.75, 0.75)),//Bottom
                 Sphere(1e5, Vec(50,-1e5+82.6,81.6),Vec(0.75, 0.75, 0.75)),//Top
                 Sphere(16.5,Vec(27,16.5,47),       Vec(0,255,0)),//Mirr
@@ -109,34 +115,25 @@ int main(int argc, char *argv[]){
         Vec r;
         std::vector<Vec> c( static_cast<size_t>(w*h) );
 
-        for (int y=0; y<h; y++){                       // Loop over image rows
+        for (int y=0; y<h; y++){ // Loop over image rows
             std::cout << "\rRendering " << 100.*y/(h-1) << "%" << std::flush;
 
-            for (unsigned short x=0, Xi[3]={0,0, static_cast<unsigned short>(y*y*y)}; x<w; x++) {   // Loop cols
+            for (unsigned short x=0; x<w; x++) {   // Loop cols
                 int i = (h - y - 1) * w + x; // get pixel index in 1D vector
 
-                int sy = 0;
-                int sx = 0;
-                r = Vec();
-                double r1 = 2 * erand48(Xi);
-                double dx = r1 < 1 ? sqrt(r1) - 1 : 1 - sqrt(2 - r1);
-                double r2 = 2 * erand48(Xi);
-                double dy = r2 < 1 ? sqrt(r2) - 1 : 1 - sqrt(2 - r2);
+                double hw    = static_cast<double>(h)/w;
+                double fovx  = M_PI/10;
+                double fovy  = hw * fovx;
+                double x1to1 = (2.0 * x - w) / w; // x is now in the range [-1,1]
+                double y1to1 = (2.0 * y - h) / h; // y is now in the range [-1,1]
 
-                Vec d = cx * (((sx + .5 + dx) / 2 + x) / w - .5) +
-                        cy * (((sy + .5 + dy) / 2 + y) / h - .5) + cam.d;
-
-                double fovx = M_PI/12;
-                double fovy = (h/w)*fovx;
-                Vec d2(
-                        ((2.0*x-w)/w) * tan(fovx),
-                        ((2.0*y)-h)/h * tan(h/w * fovx),
+                Vec d(
+                        x1to1 * tan(fovx),
+                        y1to1 * tan(hw * fovx),
                         cam.d.z
                 );
 
-                r = r + radiance(Ray(cam.o + d * 140, d.norm()), spheres);
-
-                // Camera rays are pushed ^^^^^ forward to start in interior
+                r = radiance(Ray(cam.o, d.norm()), spheres);
                 c[i] = c[i] + Vec(clamp(r.x), clamp(r.y), clamp(r.z));
             }
         }
