@@ -12,26 +12,26 @@ class Vec {        // Usage: time ./smallpt 5000 && xv image.ppm
 public:
     double x, y, z;                  // position, also color (r,g,b)
 
-    explicit Vec(double x_=0, double y_=0, double z_=0) {
-        x=x_; y=y_; z=z_; }
+    explicit Vec(double x=0, double y=0, double z=0) {
+        this->x=x; this->y=y; this->z=z; }
 
-    Vec operator+(const Vec &b) const {
-        return Vec(x+b.x,y+b.y,z+b.z); }
+    Vec operator+(const Vec &rhs) const {
+        return Vec(x+rhs.x,y+rhs.y,z+rhs.z); }
 
-    Vec operator-(const Vec &b) const {
-        return Vec(x-b.x,y-b.y,z-b.z); }
+    Vec operator-(const Vec &rhs) const {
+        return Vec(x-rhs.x,y-rhs.y,z-rhs.z); }
 
-    Vec operator*(double b) const {
-        return Vec(x*b,y*b,z*b); }
+    Vec operator*(double rhs) const {
+        return Vec(x*rhs,y*rhs,z*rhs); }
 
     Vec& norm(){
         return *this = *this * (1/sqrt(x*x+y*y+z*z)); }
 
-    double dot(const Vec &b) const {
-        return x*b.x+y*b.y+z*b.z; }
+    double dot(const Vec &rhs) const {
+        return x*rhs.x+y*rhs.y+z*rhs.z; }
 
     // cross product
-    Vec operator%(Vec&b){return Vec(y*b.z-z*b.y,z*b.x-x*b.z,x*b.y-y*b.x);}
+    Vec operator%(Vec&rhs){return Vec(y*rhs.z-z*rhs.y,z*rhs.x-x*rhs.z,x*rhs.y-y*rhs.x);}
 };
 
 struct Ray {
@@ -42,7 +42,7 @@ struct Ray {
 
 class Sphere {
 public:
-    double rad;       // radius
+    double rad;    // radius
     Vec p, c;      // position, color
 
     Sphere(double rad_, Vec p_, Vec c_)
@@ -50,7 +50,10 @@ public:
 
     double intersect(const Ray &r) const { // returns distance, 0 if nohit
         Vec op = p-r.o; // Solve t^2*d.d + 2*t*(o-p).d + (o-p).(o-p)-R^2 = 0
-        double t, eps=1e-4, b=op.dot(r.d), det=b*b-op.dot(op)+rad*rad;
+        double t;
+        double eps = 1e-4;
+        double b   = op.dot(r.d);
+        double det = b * b - op.dot(op) + rad * rad;
         if (det<0) return 0; else det=sqrt(det);
         return (t=b-det)>eps ? t : ((t=b+det)>eps ? t : 0);
     }
@@ -110,8 +113,7 @@ int main(int argc, char *argv[]){
         int w = 256;
         int h = 192;
         Ray cam(Vec(50,40,305), Vec(0,0.0,-1).norm()); // cam pos, dir
-        auto cx = Vec(w*.5135/h, 0.0, 0.0);
-        auto cy = (cx%cam.d).norm()*.5135;
+
         Vec r;
         std::vector<Vec> c( static_cast<size_t>(w*h) );
 
