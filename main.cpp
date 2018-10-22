@@ -144,42 +144,58 @@ Vec radiance(const Ray &r, int depth, unsigned short *Xi, const std::vector<Sphe
                           radiance(reflRay,depth,Xi, spheres)*Re+radiance(Ray(x,tdir),depth,Xi, spheres)*Tr);
 }
 int main(int argc, char *argv[]){
-    std::vector<Sphere> spheres = {//Scene: radius, position, emission, color, material
-            Sphere(1e5, Vec( 1e5+1,40.8,81.6), Vec(),Vec(.75,.25,.25),DIFF),//Left
-            Sphere(1e5, Vec(-1e5+99,40.8,81.6),Vec(),Vec(.25,.25,.75),DIFF),//Rght
-            Sphere(1e5, Vec(50,40.8, 1e5),     Vec(),Vec(.75,.75,.75),DIFF),//Back
-            Sphere(1e5, Vec(50,40.8,-1e5+170), Vec(),Vec(),           DIFF),//Frnt
-            Sphere(1e5, Vec(50, 1e5, 81.6),    Vec(),Vec(.75,.75,.75),DIFF),//Botm
-            Sphere(1e5, Vec(50,-1e5+81.6,81.6),Vec(),Vec(.75,.75,.75),DIFF),//Top
-            Sphere(16.5,Vec(27,16.5,47),       Vec(),Vec(1,1,1)*.999, SPEC),//Mirr
-            Sphere(16.5,Vec(73,16.5,78),       Vec(),Vec(1,1,1)*.999, REFR),//Glas
-            Sphere(600, Vec(50,681.6-.27,81.6),Vec(12,12,12),  Vec(), DIFF) //Lite
-    };
+    try {
+        std::vector<Sphere> spheres = {//Scene: radius, position, emission, color, material
+                Sphere(1e5, Vec( 1e5+1,40.8,81.6), Vec(),Vec(.75,.25,.25),DIFF),//Left
+                Sphere(1e5, Vec(-1e5+99,40.8,81.6),Vec(),Vec(.25,.25,.75),DIFF),//Rght
+                Sphere(1e5, Vec(50,40.8, 1e5),     Vec(),Vec(.75,.75,.75),DIFF),//Back
+                Sphere(1e5, Vec(50,40.8,-1e5+170), Vec(),Vec(),           DIFF),//Frnt
+                Sphere(1e5, Vec(50, 1e5, 81.6),    Vec(),Vec(.75,.75,.75),DIFF),//Botm
+                Sphere(1e5, Vec(50,-1e5+81.6,81.6),Vec(),Vec(.75,.75,.75),DIFF),//Top
+                Sphere(16.5,Vec(27,16.5,47),       Vec(),Vec(1,1,1)*.999, SPEC),//Mirr
+                Sphere(16.5,Vec(73,16.5,78),       Vec(),Vec(1,1,1)*.999, REFR),//Glas
+                Sphere(600, Vec(50,681.6-.27,81.6),Vec(12,12,12),  Vec(), DIFF) //Lite
+        };
 
-    int w=256, h=192, samps = 1; // # samples
-    Ray cam(Vec(50,52,295.6), Vec(0,-0.042612,-1).norm()); // cam pos, dir
-    Vec cx=Vec(w*.5135/h), cy=(cx%cam.d).norm()*.5135, r, *c=new Vec[w*h];
-    for (int y=0; y<h; y++){                       // Loop over image rows
-        fprintf(stderr,"\rRendering (%d spp) %5.2f%%",samps,100.*y/(h-1));
-        for (unsigned short x=0, Xi[3]={0,0, static_cast<unsigned short>(y*y*y)}; x<w; x++) {   // Loop cols
-            int i = (h - y - 1) * w + x;
-            for (int sy = 0; sy < 2; sy++)     // 2x2 subpixel rows
-                for (int sx = 0; sx < 2; sx++) {        // 2x2 subpixel cols
-                    r = Vec();
-                    double r1 = 2 * erand48(Xi), dx = r1 < 1 ? sqrt(r1) - 1 : 1 - sqrt(2 - r1);
-                    double r2 = 2 * erand48(Xi), dy = r2 < 1 ? sqrt(r2) - 1 : 1 - sqrt(2 - r2);
-                    Vec d = cx * (((sx + .5 + dx) / 2 + x) / w - .5) +
-                            cy * (((sy + .5 + dy) / 2 + y) / h - .5) + cam.d;
-                    r = r + radiance(Ray(cam.o + d * 140, d.norm()), 0, Xi, spheres);
-                    // Camera rays are pushed ^^^^^ forward to start in interior
-                    c[i] = c[i] + Vec(clamp(r.x), clamp(r.y), clamp(r.z)) * .25;
-                }
+        int w = 256;
+        int h = 192;
+        Ray cam(Vec(50,52,295.6), Vec(0,-0.042612,-1).norm()); // cam pos, dir
+        auto cx = Vec(w*.5135/h, 0.0, 0.0);
+        auto cy = (cx%cam.d).norm()*.5135;
+        Vec r;
+        std::vector<Vec> c( static_cast<size_t>(w*h) );
+
+        for (int y=0; y<h; y++){                       // Loop over image rows
+            std::cout << "\rRendering " << 100.*y/(h-1) << "%" << std::flush;
+
+            for (unsigned short x=0, Xi[3]={0,0, static_cast<unsigned short>(y*y*y)}; x<w; x++) {   // Loop cols
+                int i = (h - y - 1) * w + x;
+                for (int sy = 0; sy < 2; sy++)     // 2x2 subpixel rows
+                    for (int sx = 0; sx < 2; sx++) {        // 2x2 subpixel cols
+                        r = Vec();
+                        double r1 = 2 * erand48(Xi), dx = r1 < 1 ? sqrt(r1) - 1 : 1 - sqrt(2 - r1);
+                        double r2 = 2 * erand48(Xi), dy = r2 < 1 ? sqrt(r2) - 1 : 1 - sqrt(2 - r2);
+                        Vec d = cx * (((sx + .5 + dx) / 2 + x) / w - .5) +
+                                cy * (((sy + .5 + dy) / 2 + y) / h - .5) + cam.d;
+                        r = r + radiance(Ray(cam.o + d * 140, d.norm()), 0, Xi, spheres);
+                        // Camera rays are pushed ^^^^^ forward to start in interior
+                        c[i] = c[i] + Vec(clamp(r.x), clamp(r.y), clamp(r.z)) * .25;
+                    }
+            }
         }
-    }
-    FILE *f = fopen("image.ppm", "w");         // Write image to PPM file.
-    fprintf(f, "P3\n%d %d\n%d\n", w, h, 255);
-    for (int i=0; i<w*h; i++)
-        fprintf(f,"%d %d %d ", toInt(c[i].x), toInt(c[i].y), toInt(c[i].z));
 
-    std::cout << "\nFinished\n";
+        FILE *f = fopen("image.ppm", "w");         // Write image to PPM file.
+        fprintf(f, "P3\n%d %d\n%d\n", w, h, 255);
+        for (int i=0; i<w*h; i++){
+            fprintf(f,"%d %d %d ", toInt(c[i].x), toInt(c[i].y), toInt(c[i].z));
+        }
+
+        std::cout << "\nFinished\n";
+    }
+    catch (const std::exception& e){
+        std::cerr << e.what() << std::endl;
+    }
+    catch (...){
+        std::cerr << "Uncaught exception thrown!\n";
+    }
 }
