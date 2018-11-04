@@ -7,6 +7,9 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <cstdio>
+#include <opencv/cv.h>
+#include "glm/glm.hpp"
 
 class Vec {        // Usage: time ./smallpt 5000 && xv image.ppm
 public:
@@ -123,7 +126,7 @@ int main(int argc, char *argv[]){
             for (unsigned short x=0; x<w; x++) {   // Loop cols
                 int i = (h - y - 1) * w + x; // get pixel index in 1D vector
 
-                double hw    = static_cast<double>(h)/w;
+                double hw    = static_cast<double>(h)/w; // prevent integer division
                 double fovx  = M_PI/10;
                 double fovy  = hw * fovx;
                 double x1to1 = (2.0 * x - w) / w; // x is now in the range [-1,1]
@@ -137,6 +140,8 @@ int main(int argc, char *argv[]){
                 c[i] = c[i] + Vec(clamp(r.x), clamp(r.y), clamp(r.z));
             }
         }
+
+
 
         FILE *f = fopen("image.ppm", "w");         // Write image to PPM file.
         fprintf(f, "P3\n%d %d\n%d\n", w, h, 255);
