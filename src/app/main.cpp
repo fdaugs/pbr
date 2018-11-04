@@ -11,52 +11,26 @@
 #include <opencv/cv.h>
 #include "glm/glm.hpp"
 
-class Vec {        // Usage: time ./smallpt 5000 && xv image.ppm
-public:
-    double x, y, z;                  // position, also color (r,g,b)
-
-    explicit Vec(double x=0, double y=0, double z=0) {
-        this->x=x; this->y=y; this->z=z; }
-
-    Vec operator+(const Vec &rhs) const {
-        return Vec(x+rhs.x,y+rhs.y,z+rhs.z); }
-
-    Vec operator-(const Vec &rhs) const {
-        return Vec(x-rhs.x,y-rhs.y,z-rhs.z); }
-
-    Vec operator*(double rhs) const {
-        return Vec(x*rhs,y*rhs,z*rhs); }
-
-    Vec& norm(){
-        return *this = *this * (1/sqrt(x*x+y*y+z*z)); }
-
-    double dot(const Vec &rhs) const {
-        return x*rhs.x+y*rhs.y+z*rhs.z; }
-
-    // cross product
-    Vec operator%(Vec&rhs){return Vec(y*rhs.z-z*rhs.y,z*rhs.x-x*rhs.z,x*rhs.y-y*rhs.x);}
-};
-
 struct Ray {
-    Vec o, d;
-    Ray(Vec o_, Vec d_)
+    glm::vec3 o, d;
+    Ray(glm::vec3 o_, glm::vec3 d_)
             : o(o_), d(d_) {}
 };
 
 class Sphere {
 public:
     double rad;    // radius
-    Vec p, c;      // position, color
+    glm::vec3 p, c;      // position, color
 
-    Sphere(double rad_, Vec p_, Vec c_)
+    Sphere(double rad_, glm::vec3 p_, glm::vec3 c_)
             : rad(rad_), p(p_), c(c_){}
 
     double intersect(const Ray &r) const { // returns distance, 0 if nohit
-        Vec op = p-r.o; // Solve t^2*d.d + 2*t*(o-p).d + (o-p).(o-p)-R^2 = 0
+        glm::vec3 op = p-r.o; // Solve t^2*d.d + 2*t*(o-p).d + (o-p).(o-p)-R^2 = 0
         double t;
         double eps = 1e-4;
-        double b   = op.dot(r.d);
-        double det = b * b - op.dot(op) + rad * rad;
+        double b  = glm::dot(op, r.d);
+        double det = b * b - glm::dot(op, op) + rad * rad;
         if (det<0) return 0; else det=sqrt(det);
         return (t=b-det)>eps ? t : ((t=b+det)>eps ? t : 0);
     }
@@ -86,12 +60,12 @@ inline bool intersect(const Ray &r, double &t, int &id, const std::vector<Sphere
     return t<inf;
 }
 
-Vec radiance(const Ray &r, const std::vector<Sphere>& spheres){
+glm::vec3 radiance(const Ray &r, const std::vector<Sphere>& spheres){
     double t;                               // distance to intersection
     int id=0;                               // id of intersected object
 
     if (!intersect(r, t, id, spheres)){
-        return Vec(); // if miss, return black
+        return glm::vec3(); // if miss, return black
     }
     const Sphere &obj = spheres[id];        // the hit object
 
@@ -102,23 +76,23 @@ Vec radiance(const Ray &r, const std::vector<Sphere>& spheres){
 int main(int argc, char *argv[]){
     try {
         std::vector<Sphere> spheres = {//Scene: radius, position, emission, color, material
-                Sphere(1e5, Vec( 1e5+1,40.8,81.6), Vec(255,0,0)),//Left
-                Sphere(1e5, Vec(-1e5+99,40.8,81.6),Vec(0,0,255)),//Right
-                Sphere(1e5, Vec(50,40.8, 1e5),     Vec(0.75, 0.75, 0.75)),//Back
-                //Sphere(1e5, Vec(50,40.8,-1e5+170), Vec()),//Front
-                Sphere(1e5, Vec(50, 1e5, 81.6),    Vec(0.75, 0.75, 0.75)),//Bottom
-                Sphere(1e5, Vec(50,-1e5+82.6,81.6),Vec(0.75, 0.75, 0.75)),//Top
-                Sphere(16.5,Vec(27,16.5,47),       Vec(0,255,0)),//Mirr
-                Sphere(16.5,Vec(73,16.5,78),       Vec(255,255,0)),//Glas
-                Sphere(600, Vec(50,681.6-.27,81.6),Vec(120,120,120)) //Lite
+                Sphere(1e5, glm::vec3( 1e5+1,40.8,81.6), glm::vec3(255,0,0)),//Left
+                Sphere(1e5, glm::vec3(-1e5+99,40.8,81.6),glm::vec3(0,0,255)),//Right
+                Sphere(1e5, glm::vec3(50,40.8, 1e5),     glm::vec3(0.75, 0.75, 0.75)),//Back
+                //Sphere(1e5, glm::vec3(50,40.8,-1e5+170), glm::vec3()),//Front
+                Sphere(1e5, glm::vec3(50, 1e5, 81.6),    glm::vec3(0.75, 0.75, 0.75)),//Bottom
+                Sphere(1e5, glm::vec3(50,-1e5+82.6,81.6),glm::vec3(0.75, 0.75, 0.75)),//Top
+                Sphere(16.5,glm::vec3(27,16.5,47),       glm::vec3(0,255,0)),//Mirr
+                Sphere(16.5,glm::vec3(73,16.5,78),       glm::vec3(255,255,0)),//Glas
+                Sphere(600, glm::vec3(50,681.6-.27,81.6),glm::vec3(120,120,120)) //Lite
         };
 
         int w = 256;
         int h = 192;
-        Ray cam(Vec(50,40,305), Vec(0,0.0,-1).norm()); // cam pos, dir
+        Ray cam(glm::vec3(50,40,305),glm::normalize(glm::vec3(0,0.0,-1))); // cam pos, dir
 
-        Vec r;
-        std::vector<Vec> c( static_cast<size_t>(w*h) );
+        glm::vec3 r;
+        std::vector<glm::vec3> c( static_cast<size_t>(w*h) );
 
         for (int y=0; y<h; y++){ // Loop over image rows
             std::cout << "\rRendering " << 100.*y/(h-1) << "%" << std::flush;
@@ -132,12 +106,12 @@ int main(int argc, char *argv[]){
                 double x1to1 = (2.0 * x - w) / w; // x is now in the range [-1,1]
                 double y1to1 = (2.0 * y - h) / h; // y is now in the range [-1,1]
 
-                Vec d(x1to1 * tan(fovx),
+                glm::vec3 d(x1to1 * tan(fovx),
                       y1to1 * tan(hw * fovx),
                       -1.0);
 
-                r    = radiance(Ray(cam.o, d.norm()), spheres);
-                c[i] = c[i] + Vec(clamp(r.x), clamp(r.y), clamp(r.z));
+                r = radiance(Ray(cam.o, glm::normalize(d)), spheres);
+                c[i] = c[i] + glm::vec3(clamp(r.x), clamp(r.y), clamp(r.z));
             }
         }
 
