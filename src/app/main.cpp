@@ -10,31 +10,11 @@
 #include <cstdio>
 #include <opencv/cv.h>
 #include "glm/glm.hpp"
+#include "core/core.h"
+#include "shapes/sphere.h"
 
-struct Ray {
-    glm::vec3 o, d;
-    Ray(glm::vec3 o_, glm::vec3 d_)
-            : o(o_), d(d_) {}
-};
 
-class Sphere {
-public:
-    double rad;    // radius
-    glm::vec3 p, c;      // position, color
 
-    Sphere(double rad_, glm::vec3 p_, glm::vec3 c_)
-            : rad(rad_), p(p_), c(c_){}
-
-    double intersect(const Ray &r) const { // returns distance, 0 if nohit
-        glm::vec3 op = p-r.o; // Solve t^2*d.d + 2*t*(o-p).d + (o-p).(o-p)-R^2 = 0
-        double t;
-        double eps = 1e-4;
-        double b  = glm::dot(op, r.d);
-        double det = b * b - glm::dot(op, op) + rad * rad;
-        if (det<0) return 0; else det=sqrt(det);
-        return (t=b-det)>eps ? t : ((t=b+det)>eps ? t : 0);
-    }
-};
 
 inline double clamp(double x){
     return x<0 ? 0 : x>1 ? 1 : x;
