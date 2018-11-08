@@ -6,7 +6,7 @@
 #define ASSIGNMENT1_SPHERE_H
 
 #include "glm/glm.hpp"
-#include "../core/core.h"
+#include "../core/ray.h"
 
 class Sphere {
 public:
