@@ -41,7 +41,7 @@ public:
     }
 
     void show(std::string title){
-        cv::namedWindow( "Display window", cv::WINDOW_AUTOSIZE );
+        //cv::namedWindow( "Display window", cv::WINDOW_AUTOSIZE );
         cv::imshow(title, img);
 
         cv::setMouseCallback( title, onMouse, &img );

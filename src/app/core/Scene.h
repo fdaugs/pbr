@@ -2,8 +2,8 @@
 // Created by fd on 08.11.2018.
 //
 
-#ifndef ASSIGNMENT1_SCENE_H
-#define ASSIGNMENT1_SCENE_H
+#ifndef PBR_SCENE_H
+#define PBR_SCENE_H
 
 
 #include <vector>
@@ -20,4 +20,4 @@ public:
 };
 
 
-#endif //ASSIGNMENT1_SCENE_H
+#endif //PBR_SCENE_H

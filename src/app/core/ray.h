@@ -2,8 +2,8 @@
 // Created by fd on 04.11.2018.
 //
 
-#ifndef ASSIGNMENT1_RAY_H
-#define ASSIGNMENT1_RAY_H
+#ifndef PBR_RAY_H
+#define PBR_RAY_H
 
 #include "glm/glm.hpp"
 
@@ -24,4 +24,4 @@ struct Ray {
 };
 
 
-#endif //ASSIGNMENT1_RAY_H
+#endif //PBR_RAY_H

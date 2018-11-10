@@ -2,8 +2,8 @@
 // Created by fd on 04.11.2018.
 //
 
-#ifndef ASSIGNMENT1_SPHERE_H
-#define ASSIGNMENT1_SPHERE_H
+#ifndef PBR_SPHERE_H
+#define PBR_SPHERE_H
 
 #include "glm/glm.hpp"
 #include "../core/ray.h"
@@ -33,4 +33,4 @@ public:
     double intersect(const Ray &r) const;
 };
 
-#endif //ASSIGNMENT1_SPHERE_H
+#endif //PBR_SPHERE_H

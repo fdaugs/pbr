@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.9)
 
 # Give your project a name
-project(assignment1)
+project(pbr)
 
 #set(OpenCV_FOUND 1)
 find_package(OpenCV REQUIRED)
