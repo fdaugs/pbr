@@ -51,13 +51,14 @@ int main(int argc, char *argv[]){
         Ray cam(glm::vec3(50,40,305),glm::normalize(glm::vec3(0,0.0,-1))); // cam pos, dir
 
         glm::vec3 r;
-        std::vector<glm::vec3> c( static_cast<size_t>(w*h) );
 
-        for (int y=0; y<h; y++){ // Loop over image rows
+        // Create Matrix with desired image size
+        cv::Mat M(h, w, CV_8UC3, cv::Scalar(255,0,0));
+
+        for(int y = 0; y < M.rows; y++) // Loop over image rows
+        {
             std::cout << "\rRendering " << 100.*y/(h-1) << "%" << std::flush;
-
-            for (unsigned short x=0; x<w; x++) {   // Loop cols
-                int i = (h - y - 1) * w + x; // get pixel index in 1D vector
+            for(int x = 0; x < M.cols; x++){ // Loop cols
 
                 double hw    = static_cast<double>(h)/w; // prevent integer division
                 double fovx  = M_PI/10;
@@ -66,26 +67,20 @@ int main(int argc, char *argv[]){
                 double y1to1 = (2.0 * y - h) / h; // y is now in the range [-1,1]
 
                 glm::vec3 d(x1to1 * tan(fovx),
-                      y1to1 * tan(hw * fovx),
-                      -1.0);
+                            y1to1 * tan(hw * fovx),
+                            -1.0);
 
                 r = radiance(Ray(cam.o, glm::normalize(d)), myScene);
-                c[i] = c[i] + glm::vec3(clamp(r.x), clamp(r.y), clamp(r.z));
+                M.at<cv::Vec3b>(cv::Point(x,y)) = cv::Vec3b(toInt(clamp(r.z)), toInt(clamp(r.y)), toInt(clamp(r.x)));
             }
+
         }
-        cv::Mat M(w,h, CV_8UC3, cv::Scalar(0,0,255));
+
 
         auto out = std::make_unique<Image>(w, h);
-        //memcpy(out->img.data, c.data(), c.size());
         out->img = M;
+        out->save("Test.png");
         out->show("Test");
-
-        FILE *f = fopen("image.ppm", "w");         // Write image to PPM file.
-        fprintf(f, "P3\n%d %d\n%d\n", w, h, 255);
-        for (int i=0; i<w*h; i++){
-            std::cout << c[i].y << std::endl;
-            fprintf(f,"%d %d %d ", toInt(c[i].x), toInt(c[i].y), toInt(c[i].z));
-        }
 
         std::cout << "\nFinished\n";
     }
