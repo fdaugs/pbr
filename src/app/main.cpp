@@ -9,12 +9,13 @@
 #include <cmath>
 #include <cstdio>
 #include <opencv/cv.h>
+#include <memory>
 #include "glm/glm.hpp"
 #include "core/ray.h"
 #include "shapes/sphere.h"
 #include "core/image.h"
 #include "core/Scene.h"
-#include <memory>
+#include "cameras/simplePinholeCamera.h"
 
 
 
@@ -48,6 +49,8 @@ int main(int argc, char *argv[]){
 
         int w = 256;
         int h = 192;
+        SimplePinholeCamera pCam(glm::vec3(50,40,305), glm::vec3(0,1,0),  glm::vec3(0,0,-1), float (M_PI/10), w, h);
+
         Ray cam(glm::vec3(50,40,305),glm::normalize(glm::vec3(0,0.0,-1))); // cam pos, dir
 
         glm::vec3 r;
@@ -59,24 +62,16 @@ int main(int argc, char *argv[]){
         {
             std::cout << "\rRendering " << 100.*y/(h-1) << "%" << std::flush;
             for(int x = 0; x < M.cols; x++){ // Loop cols
-
-                double hw    = static_cast<double>(h)/w; // prevent integer division
-                double fovx  = M_PI/10;
-                double fovy  = hw * fovx;
-                double x1to1 = (2.0 * x - w) / w; // x is now in the range [-1,1]
-                double y1to1 = (2.0 * y - h) / h; // y is now in the range [-1,1]
-
-                glm::vec3 d(x1to1 * tan(fovx),
-                            y1to1 * tan(hw * fovx),
-                            -1.0);
-
-                r = radiance(Ray(cam.o, glm::normalize(d)), myScene);
-                M.at<cv::Vec3b>(cv::Point(x,y)) = cv::Vec3b(toInt(clamp(r.z)), toInt(clamp(r.y)), toInt(clamp(r.x)));
+                Ray ray;
+                pCam.generateRay(&ray, glm::vec2(x,y));
+                r = radiance(ray, myScene);
+                M.at<cv::Vec3b>(y,x) = cv::Vec3b(toInt(clamp(r.z)), toInt(clamp(r.y)), toInt(clamp(r.x)));
             }
 
         }
 
-
+        cv::flip(M, M, -1);
+        cv::flip(M, M, 1);
         auto out = std::make_unique<Image>(w, h);
         out->img = M;
         out->save("Test.png");
