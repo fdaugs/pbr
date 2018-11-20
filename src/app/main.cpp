@@ -55,27 +55,22 @@ int main(int argc, char *argv[]){
 
         glm::vec3 r;
 
-        // Create Matrix with desired image size
-        cv::Mat M(h, w, CV_8UC3, cv::Scalar(255,0,0));
+        Image out(w,h);
 
-        for(int y = 0; y < M.rows; y++) // Loop over image rows
+        for(int y = 0; y < out.rows; y++) // Loop over image rows
         {
             std::cout << "\rRendering " << 100.*y/(h-1) << "%" << std::flush;
-            for(int x = 0; x < M.cols; x++){ // Loop cols
+            for(int x = 0; x < out.cols; x++){ // Loop cols
                 Ray ray;
                 pCam.generateRay(&ray, glm::vec2(x,y));
                 r = radiance(ray, myScene);
-                M.at<cv::Vec3b>(y,x) = cv::Vec3b(toInt(clamp(r.z)), toInt(clamp(r.y)), toInt(clamp(r.x)));
+                out.at(x,y) = {clamp(r.z), clamp(r.y), clamp(r.x)};
             }
 
         }
-
-        cv::flip(M, M, -1);
-        cv::flip(M, M, 1);
-        auto out = std::make_unique<Image>(w, h);
-        out->img = M;
-        out->save("Test.png");
-        out->show("Test");
+        
+        out.save("Test.png");
+        out.show("Test");
 
         std::cout << "\nFinished\n";
     }
