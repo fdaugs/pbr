@@ -2,7 +2,7 @@
 // Created by fd on 08.11.2018.
 //
 
-#include "Scene.h"
+#include "scene.h"
 
 void Scene::loadScene() {
     objects = {//Scene: radius, position, emission, color, material

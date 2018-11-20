@@ -14,7 +14,7 @@
 #include "core/ray.h"
 #include "shapes/sphere.h"
 #include "core/image.h"
-#include "core/Scene.h"
+#include "core/scene.h"
 #include "cameras/simplePinholeCamera.h"
 
 
