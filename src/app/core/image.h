@@ -30,7 +30,7 @@ public:
     };
 
     Pixel& at(const int x, const int y){
-        return img.at<Pixel>(y,x);
+        return img.at<Pixel>(rows-1-y,x);
     };
 
     static void onMouse(int event, int x, int y, int flags, void* image){
