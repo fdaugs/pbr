@@ -49,9 +49,7 @@ int main(int argc, char *argv[]){
 
         int w = 256;
         int h = 192;
-        SimplePinholeCamera pCam(glm::vec3(50,40,305), glm::vec3(0,1,0),  glm::vec3(0,0,-1), float (M_PI/10), w, h);
-
-        Ray cam(glm::vec3(50,40,305),glm::normalize(glm::vec3(0,0.0,-1))); // cam pos, dir
+        SimplePinholeCamera cam(glm::vec3(50,40,305), glm::vec3(0,1,0),  glm::vec3(0,0,-1), float (M_PI/10), w, h);
 
         glm::vec3 r;
 
@@ -61,9 +59,7 @@ int main(int argc, char *argv[]){
         {
             std::cout << "\rRendering " << 100.*y/(h-1) << "%" << std::flush;
             for(int x = 0; x < out.cols; x++){ // Loop cols
-                Ray ray;
-                pCam.generateRay(&ray, glm::vec2(x,y));
-                r = radiance(ray, myScene);
+                r = radiance(cam.generateRay(x, y), myScene);
                 out.at(x,y) = {clamp(r.z), clamp(r.y), clamp(r.x)};
             }
 

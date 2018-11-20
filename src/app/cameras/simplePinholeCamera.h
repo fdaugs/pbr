@@ -10,7 +10,7 @@
 class SimplePinholeCamera: public Camera {
 public:
     SimplePinholeCamera(glm::vec3 position, glm::vec3 upvector, glm::vec3 lookatpoint, double fov, int width, int height);
-    float generateRay(Ray *ray, glm::vec2 pImage);
+    Ray generateRay(int x, int y) override;
 };
 
 

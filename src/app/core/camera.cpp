@@ -6,9 +6,9 @@
 
 
 Camera::Camera(glm::vec3 position, glm::vec3 upvector, glm::vec3 lookatpoint, double fov, int width, int height)
-    : position(position), upvector(upvector) , width(width), height(height)
+    : position(position), up(upvector) , width(width), height(height)
 {
-    this->lookatpoint = glm::normalize(lookatpoint);
+    this->lookat = glm::normalize(lookatpoint);
     float ratio = static_cast<double>(height)/width;
     fovx = fov;
     fovy = ratio * fovx;
@@ -17,20 +17,20 @@ Camera::Camera(glm::vec3 position, glm::vec3 upvector, glm::vec3 lookatpoint, do
 glm::mat3 Camera::camToWorld() {
     {
         using namespace glm;
-        vec3 xaxis = normalize(cross(upvector, lookatpoint));
-        vec3 yaxis = normalize(cross(lookatpoint, upvector));
+        vec3 xaxis = normalize(cross(up, lookat));
+        vec3 yaxis = normalize(cross(lookat, up));
 
 
         mat3 camToWorld;
 
         camToWorld[0][0] = xaxis.x;
         camToWorld[0][1] = yaxis.x;
-        camToWorld[0][2] = lookatpoint.x;
+        camToWorld[0][2] = lookat.x;
         camToWorld[1][0] = xaxis.y;
         camToWorld[1][1] = yaxis.y;
-        camToWorld[1][2] = lookatpoint.y;
+        camToWorld[1][2] = lookat.y;
         camToWorld[2][0] = xaxis.z;
         camToWorld[2][1] = yaxis.z;
-        camToWorld[2][2] = lookatpoint.z;
+        camToWorld[2][2] = lookat.z;
     }
 }
