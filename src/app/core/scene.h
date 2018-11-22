@@ -8,13 +8,14 @@
 
 #include <vector>
 #include "../shapes/sphere.h"
+#include <memory>
 
 class Scene {
-    std::vector<Sphere> objects;
+    std::vector<std::shared_ptr<Shape>> objects;
 
 public:
     void loadScene();
-    const Sphere* intersect(const Ray &r, double &t) const;
+    std::shared_ptr<Shape> intersect(const Ray &r, double &t) const;
     Scene(){};
 
 };

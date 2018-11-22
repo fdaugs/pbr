@@ -3,32 +3,60 @@
 //
 
 #include "scene.h"
+#include "../shapes/triangle.h"
+#include "glm/glm.hpp"
+#include <memory>
 
 void Scene::loadScene() {
-    objects = {//Scene: radius, position, emission, color, material
-            Sphere(1e5, glm::vec3( 1e5+1,40.8,81.6), glm::vec3(255,0,0)),//Left
-            Sphere(1e5, glm::vec3(-1e5+99,40.8,81.6),glm::vec3(0,0,255)),//Right
-            Sphere(1e5, glm::vec3(50,40.8, 1e5),     glm::vec3(0.75, 0.75, 0.75)),//Back
-            //Sphere(1e5, glm::vec3(50,40.8,-1e5+170), glm::vec3()),//Front
-            Sphere(1e5, glm::vec3(50, 1e5, 81.6),    glm::vec3(0.75, 0.75, 0.75)),//Bottom
-            Sphere(1e5, glm::vec3(50,-1e5+82.6,81.6),glm::vec3(0.75, 0.75, 0.75)),//Top
-            Sphere(16.5,glm::vec3(27,16.5,47),       glm::vec3(0,255,0)),//Mirr
-            Sphere(16.5,glm::vec3(73,16.5,78),       glm::vec3(255,255,0)),//Glas
-            Sphere(600, glm::vec3(50,681.6-.27,81.6),glm::vec3(120,120,120)) //Lite
-    };
+    // colors
+    auto red = glm::vec3(255,0,0);
+    auto blue = glm::vec3(0,0,255);
+    auto gray = glm::vec3(0.75,0.75,.75);
+    auto white = glm::vec3(1,1,1);
+
+    //Objects
+    objects.push_back(std::make_shared<Sphere>(16.5,glm::vec3(27,16.5,47),       glm::vec3(0,255,0)));//Mirr
+    objects.push_back(std::make_shared<Sphere>(16.5,glm::vec3(73,16.5,78),       glm::vec3(255,255,0)));//Glas
+    objects.push_back(std::make_shared<Triangle>(glm::vec3(27,16.5,80), glm::vec3(73,16.5,80), glm::vec3(50,50,80), glm::vec3(0,0,255)));
+
+    //Box
+    //Right
+    objects.push_back(std::make_shared<Triangle>(glm::vec3(100,0,0), glm::vec3(100,0,200), glm::vec3(100,80,0), glm::vec3(0,0,255)));
+    objects.push_back(std::make_shared<Triangle>(glm::vec3(100,80,200), glm::vec3(100,0,200), glm::vec3(100,80,0), glm::vec3(0,0,255)));
+
+    //Left
+    objects.push_back(std::make_shared<Triangle>(glm::vec3(0,0,0), glm::vec3(0,0,200), glm::vec3(0,80,0), glm::vec3(255,0,0)));
+    objects.push_back(std::make_shared<Triangle>(glm::vec3(0,80,200), glm::vec3(0,0,200), glm::vec3(0,80,0), glm::vec3(255,0,0)));
+
+    //Bottom
+    objects.push_back(std::make_shared<Triangle>(glm::vec3(0,0,0), glm::vec3(100,0,0), glm::vec3(0,0,200), gray));
+    objects.push_back(std::make_shared<Triangle>(glm::vec3(100,0,200), glm::vec3(100,0,0), glm::vec3(0,0,200), gray));
+
+    //Back
+    objects.push_back(std::make_shared<Triangle>(glm::vec3(0,0,0), glm::vec3(0,80,0), glm::vec3(100,0,0), gray));
+    objects.push_back(std::make_shared<Triangle>(glm::vec3(100,80,0), glm::vec3(0,80,0), glm::vec3(100,0,0), gray));
+
+    //Top
+    objects.push_back(std::make_shared<Triangle>(glm::vec3(0,80,0), glm::vec3(0,80,200), glm::vec3(100,80,200), gray));
+    objects.push_back(std::make_shared<Triangle>(glm::vec3(0,80,0), glm::vec3(100,80,0), glm::vec3(100,80,200), gray));
+
+    //Light
+    objects.push_back(std::make_shared<Triangle>(glm::vec3(25,75,100), glm::vec3(25,75,150), glm::vec3(75,75,150), white));
+    objects.push_back(std::make_shared<Triangle>(glm::vec3(25,75,100), glm::vec3(75,75,100), glm::vec3(75,75,150), white));
+
 }
 
-const Sphere* Scene::intersect(const Ray &r, double &t) const {
+std::shared_ptr<Shape> Scene::intersect(const Ray &r, double &t) const {
     double d;
     t = DBL_MAX;
-    const Sphere* object = nullptr;
+    std::shared_ptr<Shape> object = nullptr;
 
     for(auto i=0; i<objects.size(); ++i)
     {
-        if((d=objects[i].intersect(r)) && (d<t))
+        if((d=objects[i]->intersect(r)) && (d<t))
         {
             t=d;
-            object = &(objects[i]);
+            object = objects[i];
         }
     }
 

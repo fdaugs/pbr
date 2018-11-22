@@ -1,5 +1,5 @@
 # Gather the source files
-set(SOURCE_FILES main.cpp shapes/sphere.cpp shapes/sphere.h core/ray.cpp core/ray.h core/image.h core/scene.cpp core/scene.h core/camera.cpp core/camera.h cameras/simplePinholeCamera.cpp cameras/simplePinholeCamera.h)
+set(SOURCE_FILES main.cpp shapes/sphere.cpp shapes/sphere.h core/ray.cpp core/ray.h core/image.h core/scene.cpp core/scene.h core/camera.cpp core/camera.h cameras/simplePinholeCamera.cpp cameras/simplePinholeCamera.h core/shape.cpp core/shape.h shapes/triangle.cpp shapes/triangle.h)
 
 # # Add executable called "libDemo" that is built from the source files
 # The extensions are automatically found.

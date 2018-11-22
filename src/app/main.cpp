@@ -12,7 +12,6 @@
 #include <memory>
 #include "glm/glm.hpp"
 #include "core/ray.h"
-#include "shapes/sphere.h"
 #include "core/image.h"
 #include "core/scene.h"
 #include "cameras/simplePinholeCamera.h"
@@ -33,9 +32,9 @@ glm::vec3 radiance(const Ray &r, const Scene &scene){
     auto object = scene.intersect(r, t);
 
     if(object == nullptr){
-        return glm::vec3(); // if miss, return black
+        return glm::vec3(0,0,0); // if miss, return black
     }
-    return object->c;
+    return object->color;
 
 }
 
@@ -49,7 +48,7 @@ int main(int argc, char *argv[]){
 
         int w = 256;
         int h = 192;
-        SimplePinholeCamera cam(glm::vec3(50,40,305), glm::vec3(0,1,0),  glm::vec3(0,0,-1), float (M_PI/10), w, h);
+        SimplePinholeCamera cam(glm::vec3(50,40,400), glm::vec3(0,1,0),  glm::vec3(0,0,-1), float (M_PI/10), w, h);
 
         glm::vec3 r;
 
