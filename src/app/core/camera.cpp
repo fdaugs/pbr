@@ -5,10 +5,10 @@
 #include "camera.h"
 
 
-Camera::Camera(glm::vec3 position, glm::vec3 upvector, glm::vec3 lookatpoint, double fov, int width, int height)
+Camera::Camera(glm::vec3 position, glm::vec3 upvector, glm::vec3 lookat, double fov, int width, int height)
     : position(position), up(upvector) , width(width), height(height)
 {
-    this->lookat = glm::normalize(lookatpoint);
+    this->lookat = glm::normalize(lookat);
     float ratio = static_cast<double>(height)/width;
     fovx = fov;
     fovy = ratio * fovx;

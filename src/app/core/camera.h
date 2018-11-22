@@ -18,7 +18,7 @@ protected:
     glm::vec3 lookat;
     glm::vec3 up;
 public:
-    Camera(glm::vec3 position, glm::vec3 upvector, glm::vec3 lookatpoint, double fov, int width, int height);
+    Camera(glm::vec3 position, glm::vec3 upvector, glm::vec3 lookat, double fov, int width, int height);
     virtual Ray generateRay(int x, int y)=0;
     glm::mat3 camToWorld();
 };
